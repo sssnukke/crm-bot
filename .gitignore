@@ -1,0 +1,14 @@
+__pycache__/
+.idea/
+.DS_Store
+
+.env
+
+cache/
+data/
+
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
