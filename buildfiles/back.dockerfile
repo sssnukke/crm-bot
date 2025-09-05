@@ -1,42 +1,29 @@
-FROM node:20-alpine as build
+# Stage 1: Build
+FROM golang:1.25-alpine AS builder
 
 WORKDIR /app
 
-COPY package.json yarn.lock ./
+RUN apk add --no-cache git make gcc musl-dev
 
-RUN yarn
+# Копируем go.mod и go.sum
+COPY back/go.mod back/go.sum ./
+RUN go mod download
 
-FROM node:20-alpine as development
+# Копируем весь исходный код
+COPY back/. .
 
-ENV TZ='Asia/Vladivostok'
+# Сборка бинарника для Linux
+RUN GOOS=linux GOARCH=amd64 go build -o back ./cmd/server/main.go && ls -l /app
 
-WORKDIR /app
-
-COPY package.json yarn.lock ./
-
-COPY --from=build /app/node_modules ./node_modules
-
-COPY . .
-
-CMD ["yarn", "start:dev"]
-
-FROM node:20-alpine as build-production
-
-ENV TZ='Asia/Vladivostok'
+# Stage 2: Run
+FROM alpine:3.18
 
 WORKDIR /app
 
-COPY . .
+# Устанавливаем бинарник в безопасное место
+COPY --from=builder /app/back /usr/local/bin/back
 
-RUN yarn --only=production && yarn cache clean --force
+ENV PORT=3000
+EXPOSE 3000
 
-RUN yarn -g @nestjs/cli
-
-RUN yarn build
-
-FROM node:20-alpine as production
-
-COPY --from=build-production /app/node_modules ./node_modules
-COPY --from=build-production /app/dist ./dist
-
-CMD ["node", "dist/main.js"]
+CMD ["/usr/local/bin/back"]

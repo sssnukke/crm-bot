@@ -47,6 +47,7 @@ class BotConfig:
     """Bot configuration"""
 
     token: str = getenv("BOT_TOKEN")
+    secret_token: str = getenv("SECRET_TOKEN")
 
 
 @dataclass
