@@ -18,3 +18,16 @@ func (s *UserService) CreateUser(tgId int64) (*models.User, error) {
 	err := s.repo.Create(user)
 	return user, err
 }
+
+func (s *UserService) CheckUserExists(tgId int64) (bool, error) {
+	user, err := s.repo.GetByTgId(tgId)
+	if err != nil {
+		return false, err
+	}
+
+	return user != nil, nil
+}
+
+func (s *UserService) GetUserByTgId(tgId int64) (*models.User, error) {
+	return s.repo.GetByTgId(tgId)
+}
