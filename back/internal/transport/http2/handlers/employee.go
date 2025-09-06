@@ -6,6 +6,7 @@ import (
 	"back/internal/service"
 	"encoding/json"
 	"net/http"
+	"strconv"
 )
 
 type EmployeeHandler struct {
@@ -33,6 +34,7 @@ func (h *EmployeeHandler) CreateEmployee(w http.ResponseWriter, r *http.Request)
 		Surname:  req.Employee.Surname,
 		Age:      req.Employee.Age,
 		Phone:    req.Employee.Phone,
+		Photo:    req.Employee.Photo,
 	}
 
 	employee, err := h.service.CreateEmployee(req.UserId, employeeData)
@@ -43,5 +45,53 @@ func (h *EmployeeHandler) CreateEmployee(w http.ResponseWriter, r *http.Request)
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(employee)
+}
+
+func (h *EmployeeHandler) GetEmployeeById(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "id is required", http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	employee, err := h.service.GetEmployeeById(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	json.NewEncoder(w).Encode(employee)
+}
+
+func (h *EmployeeHandler) DeleteEmployeeById(w http.ResponseWriter, r *http.Request) {
+	idStr := r.URL.Query().Get("id")
+	if idStr == "" {
+		http.Error(w, "id is required", http.StatusBadRequest)
+		return
+	}
+
+	id, err := strconv.ParseInt(idStr, 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	employee, err := h.service.DeleteById(id)
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(employee)
 }

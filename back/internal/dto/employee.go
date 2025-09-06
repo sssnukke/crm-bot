@@ -11,4 +11,5 @@ type CreateEmployeeData struct {
 	Surname  string `json:"surName"`
 	Age      int    `json:"age"`
 	Phone    string `json:"phone"`
+	Photo    string `json:"photo"`
 }

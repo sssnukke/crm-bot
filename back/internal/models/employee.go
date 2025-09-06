@@ -9,5 +9,6 @@ type Employee struct {
 	Surname  string `json:"surName"`
 	Age      int    `json:"age"`
 	Phone    string `json:"phone"`
+	PhotoURL string `json:"photoUrl"`
 	UserId   uint
 }

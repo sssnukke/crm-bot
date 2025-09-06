@@ -4,18 +4,22 @@ package service
 import (
 	"back/internal/models"
 	"back/internal/repository"
+	"back/internal/utils"
 	"errors"
+	"fmt"
 )
 
 type EmployeeService struct {
 	employeeRepo *repository.EmployeeRepository
 	userRepo     *repository.UserRepository
+	uploadDir    string
 }
 
-func NewEmployeeService(employeeRepo *repository.EmployeeRepository, userRepo *repository.UserRepository) *EmployeeService {
+func NewEmployeeService(employeeRepo *repository.EmployeeRepository, userRepo *repository.UserRepository, uploadDir string) *EmployeeService {
 	return &EmployeeService{
 		employeeRepo: employeeRepo,
 		userRepo:     userRepo,
+		uploadDir:    uploadDir,
 	}
 }
 
@@ -25,10 +29,10 @@ type CreateEmployeeDto struct {
 	Surname  string `json:"surName"`
 	Age      int    `json:"age"`
 	Phone    string `json:"phone"`
+	Photo    string `json:"photo"`
 }
 
 func (s *EmployeeService) CreateEmployee(userId int64, employeeData *CreateEmployeeDto) (*models.Employee, error) {
-	// 1. Находим пользователя по ID
 	user, err := s.userRepo.GetByTgId(userId)
 	if err != nil {
 		return nil, err
@@ -37,21 +41,36 @@ func (s *EmployeeService) CreateEmployee(userId int64, employeeData *CreateEmplo
 		return nil, errors.New("user not found")
 	}
 
-	// 2. Создаем сотрудника и привязываем к пользователю
+	var photoURL string
+	if employeeData.Photo != "" {
+		filename, err := utils.SaveBase64Image(employeeData.Photo, s.uploadDir)
+		if err != nil {
+			return nil, fmt.Errorf("failed to save photo: %v", err)
+		}
+		photoURL = "/uploads/" + filename
+	}
 	employee := &models.Employee{
 		Name:     employeeData.Name,
 		LastName: employeeData.LastName,
 		Surname:  employeeData.Surname,
 		Age:      employeeData.Age,
 		Phone:    employeeData.Phone,
-		UserId:   user.ID, // ← Привязываем к пользователю
+		PhotoURL: photoURL,
+		UserId:   user.ID,
 	}
 
-	// 3. Сохраняем сотрудника
 	err = s.employeeRepo.Create(employee)
 	if err != nil {
 		return nil, err
 	}
 
 	return employee, nil
+}
+
+func (s *EmployeeService) GetEmployeeById(id int64) (*models.Employee, error) {
+	return s.employeeRepo.GetById(id)
+}
+
+func (s *EmployeeService) DeleteById(id int64) (*models.Employee, error) {
+	return s.employeeRepo.DeleteById(id)
 }
