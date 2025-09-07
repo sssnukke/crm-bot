@@ -7,6 +7,8 @@ import (
 	"back/internal/utils"
 	"errors"
 	"fmt"
+	"os"
+	"path/filepath"
 )
 
 type EmployeeService struct {
@@ -73,4 +75,36 @@ func (s *EmployeeService) GetEmployeeById(id int64) (*models.Employee, error) {
 
 func (s *EmployeeService) DeleteById(id int64) (*models.Employee, error) {
 	return s.employeeRepo.DeleteById(id)
+}
+
+func (s *EmployeeService) UpdateEmployeePartial(employeeID int64, updates map[string]interface{}) (*models.Employee, error) {
+	employee, err := s.employeeRepo.GetById(employeeID)
+	if err != nil {
+		return nil, err
+	}
+	if employee == nil {
+		return nil, errors.New("employee not found")
+	}
+
+	if photo, ok := updates["photo"].(string); ok && photo != "" {
+		filename, err := utils.SaveBase64Image(photo, s.uploadDir)
+		if err != nil {
+			return nil, fmt.Errorf("failed to save photo: %v", err)
+		}
+		updates["photo_url"] = "/uploads/" + filename
+
+		if employee.PhotoURL != "" {
+			oldFilename := filepath.Base(employee.PhotoURL)
+			os.Remove(filepath.Join(s.uploadDir, oldFilename))
+		}
+
+		delete(updates, "photo")
+	}
+
+	err = s.employeeRepo.UpdatePartial(employeeID, updates)
+	if err != nil {
+		return nil, err
+	}
+
+	return s.employeeRepo.GetById(employeeID)
 }

@@ -18,6 +18,17 @@ func (r *EmployeeRepository) Create(employee *models.Employee) error {
 	return r.db.Create(employee).Error
 }
 
+func (r *EmployeeRepository) UpdatePartial(id int64, updates map[string]interface{}) error {
+	result := r.db.Model(&models.Employee{}).Where("id = ?", id).Updates(updates)
+	if result.Error != nil {
+		return result.Error
+	}
+	if result.RowsAffected == 0 {
+		return gorm.ErrRecordNotFound
+	}
+	return nil
+}
+
 func (r *EmployeeRepository) GetById(id int64) (*models.Employee, error) {
 	var employee models.Employee
 	err := r.db.Where("id = ?", id).First(&employee).Error
