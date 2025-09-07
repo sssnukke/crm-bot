@@ -8,32 +8,20 @@ async def create(data: dict) -> dict | None:
     ) as session:
         try:
             return await (await session.post(
-                f'{url}/users',
+                f'{url}/employees',
                 json=data
             )).json()
         except aiohttp.client_exceptions.ContentTypeError:
             return None
 
 
-async def user_exists(tg_id: int) -> dict | None:
+async def by_id(id: str) -> dict | None:
     async with aiohttp.ClientSession(
         headers=headers
     ) as session:
         try:
             return await (await session.get(
-                f'{url}/users/check?tgId={tg_id}',
-            )).json()
-        except aiohttp.client_exceptions.ContentTypeError:
-            return None
-
-
-async def user_by_tg_id(tg_id: int) -> dict | None:
-    async with aiohttp.ClientSession(
-        headers=headers
-    ) as session:
-        try:
-            return await (await session.get(
-                f'{url}/users?tgId={tg_id}',
+                f'{url}/employees?id={id}',
             )).json()
         except aiohttp.client_exceptions.ContentTypeError:
             return None

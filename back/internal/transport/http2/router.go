@@ -31,6 +31,7 @@ func NewRouter(cfg *config.Config, db *gorm.DB) *http.ServeMux {
 
 	protected.HandleFunc("POST /employees", employeeHandler.CreateEmployee)
 	protected.HandleFunc("DELETE /employees", employeeHandler.DeleteEmployeeById)
+	protected.HandleFunc("GET /employees", employeeHandler.GetEmployeeById)
 
 	mux.Handle("/", middleware.AuthMiddleware(cfg.SecretKey, protected))
 
