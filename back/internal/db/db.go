@@ -18,6 +18,7 @@ func Connect(dsn string) *gorm.DB {
 	err = db.AutoMigrate(
 		&models.User{},
 		&models.Employee{},
+		&models.Task{},
 	)
 	if err != nil {
 		log.Fatalf("Failed to migrate database: %v", err)

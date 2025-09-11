@@ -11,4 +11,5 @@ type Employee struct {
 	PhotoURL  string `json:"photoUrl"`
 	BirthDate string `json:"birthDate"`
 	UserId    uint
+	Task      []Task `json:"tasks"`
 }
