@@ -24,17 +24,13 @@ func (h *EmployeeHandler) CreateEmployee(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	println("Received request - UserId:", req.UserId)
-	println("Employee data - Name:", req.Employee.Name)
-	println("Employee data - LastName:", req.Employee.LastName)
-
 	employeeData := &service.CreateEmployeeDto{
-		Name:     req.Employee.Name,
-		LastName: req.Employee.LastName,
-		Surname:  req.Employee.Surname,
-		Age:      req.Employee.Age,
-		Phone:    req.Employee.Phone,
-		Photo:    req.Employee.Photo,
+		Name:      req.Employee.Name,
+		LastName:  req.Employee.LastName,
+		Surname:   req.Employee.Surname,
+		Phone:     req.Employee.Phone,
+		Photo:     req.Employee.Photo,
+		BirthDate: req.Employee.BirthDate,
 	}
 
 	employee, err := h.service.CreateEmployee(req.UserId, employeeData)

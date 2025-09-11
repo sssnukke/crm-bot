@@ -26,12 +26,12 @@ func NewEmployeeService(employeeRepo *repository.EmployeeRepository, userRepo *r
 }
 
 type CreateEmployeeDto struct {
-	Name     string `json:"name"`
-	LastName string `json:"lastName"`
-	Surname  string `json:"surName"`
-	Age      int    `json:"age"`
-	Phone    string `json:"phone"`
-	Photo    string `json:"photo"`
+	Name      string `json:"name"`
+	LastName  string `json:"lastName"`
+	Surname   string `json:"surName"`
+	Phone     string `json:"phone"`
+	Photo     string `json:"photo"`
+	BirthDate string `json:"birthDate"`
 }
 
 func (s *EmployeeService) CreateEmployee(userId int64, employeeData *CreateEmployeeDto) (*models.Employee, error) {
@@ -52,13 +52,13 @@ func (s *EmployeeService) CreateEmployee(userId int64, employeeData *CreateEmplo
 		photoURL = "/uploads/" + filename
 	}
 	employee := &models.Employee{
-		Name:     employeeData.Name,
-		LastName: employeeData.LastName,
-		Surname:  employeeData.Surname,
-		Age:      employeeData.Age,
-		Phone:    employeeData.Phone,
-		PhotoURL: photoURL,
-		UserId:   user.ID,
+		Name:      employeeData.Name,
+		LastName:  employeeData.LastName,
+		Surname:   employeeData.Surname,
+		Phone:     employeeData.Phone,
+		PhotoURL:  photoURL,
+		BirthDate: employeeData.BirthDate,
+		UserId:    user.ID,
 	}
 
 	err = s.employeeRepo.Create(employee)
