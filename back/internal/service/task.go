@@ -4,6 +4,7 @@ import (
 	"back/internal/models"
 	"back/internal/repository"
 	"errors"
+	"time"
 )
 
 type TaskService struct {
@@ -34,10 +35,15 @@ func (s *TaskService) CreateTask(employeeID int64, taskData *TaskCreateDTO) (*mo
 		return nil, errors.New("employee not found")
 	}
 
+	deadline, err := time.Parse("2006-01-02", taskData.Deadline)
+	if err != nil {
+		return nil, errors.New("invalid deadline format, use YYYY-MM-DD")
+	}
+
 	task := &models.Task{
 		Name:        taskData.Name,
 		Description: taskData.Description,
-		Deadline:    taskData.Deadline,
+		Deadline:    deadline,
 		Status:      taskData.Status,
 		EmployeeID:  employee.ID,
 	}

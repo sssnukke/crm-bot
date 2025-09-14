@@ -22,10 +22,10 @@ async def add_fio_employee(message: types.Message, state: FSMContext):
     fio_pattern = re.compile(r'^[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+\s[А-ЯЁ][а-яё]+$')
 
     if message.text and fio_pattern.match(message.text):
-        await state.set_state(AddEmployeeState.age)
+        await state.set_state(AddEmployeeState.birthday)
         await state.update_data(fio=message.text)
         message = await message.answer(
-            text='Напишите возраст сотрудника',
+            text='Напишите дату рождения сотрудника',
             reply_markup=keyboards.one_action_keyboard('Вернуться в меню','menu')
         )
     else:
@@ -38,16 +38,18 @@ async def add_fio_employee(message: types.Message, state: FSMContext):
     await state.update_data(last_message_id=message.message_id)
 
 
-@messages_router.message(AddEmployeeState.age)
+@messages_router.message(AddEmployeeState.birthday)
 async def add_age_employee(message: types.Message, state: FSMContext):
     data = await state.get_data()
 
     await functions.delete_message(message.bot, message.chat.id, data['last_message_id'])
     await functions.delete_message(message.bot, message.chat.id, message.message_id)
 
-    if message.text and message.text.strip().isdigit():
+    pattern = r'^(\d{2})\.(\d{2})\.(\d{4})$'
+
+    if message.text and re.match(pattern, message.text):
         await state.set_state(AddEmployeeState.phone)
-        await state.update_data(age=message.text)
+        await state.update_data(birthday=message.text)
         message = await message.answer(
             text='Напишите номер телефона сотрудника',
             reply_markup=keyboards.one_action_keyboard('Вернуться в меню', 'menu')
@@ -55,7 +57,7 @@ async def add_age_employee(message: types.Message, state: FSMContext):
     else:
         message = await message.answer(
             text='Ошибка попробуйте еще раз,\n\n'
-                 'Пример: 24',
+                 'Пример: 24.02.2004',
             reply_markup=keyboards.one_action_keyboard('Вернуться в меню', 'menu')
         )
 
@@ -113,7 +115,7 @@ async def add_photo_employee(message: types.Message, state: FSMContext):
                 'name': name,
                 'lastName': lastName,
                 'surName': surName,
-                'age': int(data['age']),
+                'birthDate': data['birthday'],
                 'phone': data['phone'],
                 'photo': photo_data_url
             }

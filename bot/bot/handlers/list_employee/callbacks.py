@@ -58,7 +58,7 @@ async def employee_id(callback: types.CallbackQuery):
     await callback.message.answer_photo(
         photo=photo,
         caption=f'ФИО: {employee_data['lastName']} {employee_data['name']} {employee_data['surName']}\n'
-                f'Возраст: {employee_data['age']}\n'
+                f'Дата рождения: {employee_data['birthDay']}\n'
                 f'Номер: {employee_data['phone']}\n',
         reply_markup=keyboards.one_action_keyboard('В меню', 'menu')
     )
